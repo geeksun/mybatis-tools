@@ -1,4 +1,4 @@
-package util;
+package mybatis.tools.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,9 +13,11 @@ public class PropertiesUtil {
 
     private static Properties prop = new Properties();
 
+    public static String FILE_PATH = "filePath";
+
     static {
         try {
-            InputStream in = PropertiesUtil.class.getResourceAsStream("conf.properties");
+            InputStream in = PropertiesUtil.class.getResourceAsStream("/database.properties");
             prop.load(in);
             Set keyValue = prop.keySet();
             for (Iterator it = keyValue.iterator(); it.hasNext();)

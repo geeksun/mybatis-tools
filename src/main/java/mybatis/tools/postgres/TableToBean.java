@@ -1,4 +1,4 @@
-package tools;
+package mybatis.tools.postgres;
 import util.PropertiesUtil;
 
 import java.io.File;
@@ -11,38 +11,22 @@ import java.util.StringTokenizer;
 
 /**
  * MyBatis 生成Table对应Bean
- * Created by jzq1999 on 2017/4/12.
+ * Created by jzq1999 on 2017/10/21.
  */
 public class TableToBean {
 
     private static final String LINE = "\r\n";
     private static final String TAB = "\t";
 
-    String genFilePath = PropertiesUtil.getValue("genFilePath");
+    String filePath = PropertiesUtil.getValue(PropertiesUtil.FILE_PATH);
 
     private static Map<String, String> map;
 
     static {
         map = new HashMap<String, String>();
-        // MySql
-        map.put("VARCHAR", "String");
-        map.put("INT", "Integer");
-        map.put("SMALLINT", "Integer");
-        map.put("FLOAT", "float");
-        map.put("TIMESTAMP", "Date");
-        map.put("CHAR", "String");
-        map.put("DATETIME", "Date");
-        map.put("DATE", "Date");
-        map.put("TIMESTAMP_IMPORT", "import java.util.Date");
-        map.put("DATETIME_IMPORT", "import java.util.Date");
-        map.put("BIGINT", "Long");
-        map.put("TINYINT", "Integer");
-        map.put("DECIMAL", "Double");
-
         //Postgresql
         map.put("VARCHAR", "String");
         map.put("INT", "Integer");
-        map.put("SMALLINT", "Integer");
         map.put("FLOAT", "float");
         map.put("TIMESTAMP", "Date");
         map.put("CHAR", "String");
@@ -51,9 +35,12 @@ public class TableToBean {
         map.put("TIMESTAMP_IMPORT", "import java.util.Date");
         map.put("DATETIME_IMPORT", "import java.util.Date");
         map.put("BIGINT", "Long");
-        map.put("TINYINT", "Integer");
         map.put("DECIMAL", "Double");
 
+        map.put("timestamptz", "Date");
+        map.put("serial", "Integer");
+        map.put("int4", "Integer");
+        map.put("text", "String");
     }
 
     public static String getPojoType(String dataType) {
@@ -90,7 +77,7 @@ public class TableToBean {
         defProperty(md, columnCount, sb);
         genSetGet(md, columnCount, sb);
         sb.append("}");
-        buildJavaFile(genFilePath + "/" + tableName + ".java", sb.toString());
+        buildJavaFile(filePath + "/" + tableName + ".java", sb.toString());
 
         // linux平台, 不需要把"/"转成"\\"
     }
@@ -191,19 +178,23 @@ public class TableToBean {
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-
-        String jdbcUrl = PropertiesUtil.getValue("jdbcUrl");
-        Class.forName(PropertiesUtil.getValue("db.driver"));
-        Connection con = DriverManager.getConnection(jdbcUrl, PropertiesUtil.getValue("db.username"),
-                PropertiesUtil.getValue("db.password"));
+        String jdbcUrl = PropertiesUtil.getValue("postgres.jdbcUrl");
+        Class.forName(PropertiesUtil.getValue("db.postgres.driver"));
+        Connection con = DriverManager.getConnection(jdbcUrl, PropertiesUtil.getValue("db.postgres.username"),
+                PropertiesUtil.getValue("db.postgres.password"));
 
         DatabaseMetaData databaseMetaData = con.getMetaData();
         String[] tableType = {"TABLE"};
-        ResultSet rs = databaseMetaData.getTables(null, null, "%", tableType);
+        //ResultSet rs = databaseMetaData.getTables(null, null, "%", tableType);
+        ResultSet rs = databaseMetaData.getTables(null, "%",  "%", tableType);
+
         TableToBean d = new TableToBean();
         while (rs.next()) {
             String tableName = rs.getString(3).toString();
-            d.tableToBean(con, tableName);
+            if(tableName.equals("organ")) {
+                System.out.println("正在生成Bean的表名： ================ "+tableName);
+                d.tableToBean(con, tableName);
+            }
         }
     }
 

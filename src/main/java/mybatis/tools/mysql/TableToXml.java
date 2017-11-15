@@ -1,4 +1,4 @@
-package tools;
+package mybatis.tools.mysql;
 
 import util.PropertiesUtil;
 
