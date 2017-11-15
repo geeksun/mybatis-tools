@@ -1,5 +1,6 @@
 package mybatis.tools.mysql;
-import util.PropertiesUtil;
+
+import mybatis.tools.util.PropertiesUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,52 +21,36 @@ public class TableToBean {
 
     String genFilePath = PropertiesUtil.getValue("genFilePath");
 
-    private static Map<String, String> map;
+    private static Map<String, String> javaTypeMap;
 
     static {
-        map = new HashMap<String, String>();
+        javaTypeMap = new HashMap<String, String>();
         // MySql
-        map.put("VARCHAR", "String");
-        map.put("INT", "Integer");
-        map.put("SMALLINT", "Integer");
-        map.put("FLOAT", "float");
-        map.put("TIMESTAMP", "Date");
-        map.put("CHAR", "String");
-        map.put("DATETIME", "Date");
-        map.put("DATE", "Date");
-        map.put("TIMESTAMP_IMPORT", "import java.util.Date");
-        map.put("DATETIME_IMPORT", "import java.util.Date");
-        map.put("BIGINT", "Long");
-        map.put("TINYINT", "Integer");
-        map.put("DECIMAL", "Double");
-
-        //Postgresql
-        map.put("VARCHAR", "String");
-        map.put("INT", "Integer");
-        map.put("SMALLINT", "Integer");
-        map.put("FLOAT", "float");
-        map.put("TIMESTAMP", "Date");
-        map.put("CHAR", "String");
-        map.put("DATETIME", "Date");
-        map.put("DATE", "Date");
-        map.put("TIMESTAMP_IMPORT", "import java.util.Date");
-        map.put("DATETIME_IMPORT", "import java.util.Date");
-        map.put("BIGINT", "Long");
-        map.put("TINYINT", "Integer");
-        map.put("DECIMAL", "Double");
-
+        javaTypeMap.put("VARCHAR", "String");
+        javaTypeMap.put("INT", "Integer");
+        javaTypeMap.put("SMALLINT", "Integer");
+        javaTypeMap.put("FLOAT", "float");
+        javaTypeMap.put("TIMESTAMP", "Date");
+        javaTypeMap.put("CHAR", "String");
+        javaTypeMap.put("DATETIME", "Date");
+        javaTypeMap.put("DATE", "Date");
+        javaTypeMap.put("TIMESTAMP_IMPORT", "import java.util.Date");
+        javaTypeMap.put("DATETIME_IMPORT", "import java.util.Date");
+        javaTypeMap.put("BIGINT", "Long");
+        javaTypeMap.put("TINYINT", "Integer");
+        javaTypeMap.put("DECIMAL", "Double");
     }
 
     public static String getPojoType(String dataType) {
         StringTokenizer st = new StringTokenizer(dataType);
-        return map.get(st.nextToken());
+        return javaTypeMap.get(st.nextToken());
     }
 
     public static String getImport(String dataType) {
-        if (map.get(dataType) == null || "".equals(map.get(dataType))) {
+        if (javaTypeMap.get(dataType) == null || "".equals(javaTypeMap.get(dataType))) {
             return null;
         } else {
-            return map.get(dataType);
+            return javaTypeMap.get(dataType);
         }
     }
 

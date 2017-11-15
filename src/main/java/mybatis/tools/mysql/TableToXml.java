@@ -1,7 +1,6 @@
 package mybatis.tools.mysql;
 
-import util.PropertiesUtil;
-
+import mybatis.tools.util.PropertiesUtil;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;

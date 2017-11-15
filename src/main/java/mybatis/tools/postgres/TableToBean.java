@@ -1,5 +1,6 @@
 package mybatis.tools.postgres;
-import util.PropertiesUtil;
+
+import mybatis.tools.util.PropertiesUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,7 +12,7 @@ import java.util.StringTokenizer;
 
 /**
  * MyBatis 生成Table对应Bean
- * Created by jzq1999 on 2017/10/21.
+ * Created by jzq1999 on 2017/11/14.
  */
 public class TableToBean {
 
@@ -20,42 +21,43 @@ public class TableToBean {
 
     String filePath = PropertiesUtil.getValue(PropertiesUtil.FILE_PATH);
 
-    private static Map<String, String> map;
+    private static Map<String, String> javaTypeMap;
+    private static Map<String, String> importTypeMap;
 
     static {
-        map = new HashMap<String, String>();
-        //Postgresql
-        map.put("VARCHAR", "String");
-        map.put("INT", "Integer");
-        map.put("FLOAT", "float");
-        map.put("TIMESTAMP", "Date");
-        map.put("CHAR", "String");
-        map.put("DATETIME", "Date");
-        map.put("DATE", "Date");
-        map.put("TIMESTAMP_IMPORT", "import java.util.Date");
-        map.put("DATETIME_IMPORT", "import java.util.Date");
-        map.put("BIGINT", "Long");
-        map.put("DECIMAL", "Double");
+        javaTypeMap = new HashMap<String, String>();
+        importTypeMap = new HashMap<String, String>();
 
-        map.put("timestamptz", "Date");
-        map.put("serial", "Integer");
-        map.put("int4", "Integer");
-        map.put("text", "String");
+        //Postgresql
+        javaTypeMap.put("varchar", "String");
+        javaTypeMap.put("timestamptz", "Date");
+        javaTypeMap.put("timestamp", "Date");
+        javaTypeMap.put("numeric", "Double");
+        javaTypeMap.put("serial", "Integer");
+        javaTypeMap.put("int4", "Integer");
+        javaTypeMap.put("text", "String");
+        javaTypeMap.put("date", "Date");
+        javaTypeMap.put("time", "Date");
+
+        importTypeMap.put("date", "java.util.Date");
+        importTypeMap.put("time", "java.util.Date");
+        importTypeMap.put("timestamp", "java.util.Date");
+        importTypeMap.put("timestamptz", "java.util.Date");
     }
 
     public static String getPojoType(String dataType) {
+        System.out.println("dataType --------->> " + dataType);
         StringTokenizer st = new StringTokenizer(dataType);
-        return map.get(st.nextToken());
+        return javaTypeMap.get(st.nextToken());
     }
 
     public static String getImport(String dataType) {
-        if (map.get(dataType) == null || "".equals(map.get(dataType))) {
+        if (importTypeMap.get(dataType) == null || "".equals(importTypeMap.get(dataType))) {
             return null;
         } else {
-            return map.get(dataType);
+            return importTypeMap.get(dataType);
         }
     }
-
 
     public void tableToBean(Connection connection, String tableName) throws SQLException {
         String sql = "select * from " + tableName + " limit 1"; //MySql DB
@@ -69,12 +71,15 @@ public class TableToBean {
         tableName = tableName.substring(0, 1).toUpperCase() + tableName.subSequence(1, tableName.length());
         tableName = this.dealLine(tableName);
         //  sb.append("package " + this.packages + " ;");
+
         sb.append(LINE);
         importPackage(md, columnCount, sb);
         sb.append(LINE);
         sb.append("public class " + tableName + " {");
         sb.append(LINE);
+
         defProperty(md, columnCount, sb);
+
         genSetGet(md, columnCount, sb);
         sb.append("}");
         buildJavaFile(filePath + "/" + tableName + ".java", sb.toString());
@@ -115,9 +120,9 @@ public class TableToBean {
     //导入属性所需包
     private void importPackage(ResultSetMetaData md, int columnCount, StringBuffer sb) throws SQLException {
         for (int i = 1; i <= columnCount; i++) {
-            String im = getImport(md.getColumnTypeName(i) + "_IMPORT");
+            String im = getImport(md.getColumnTypeName(i));
             if (im != null) {
-                sb.append(im + ";");
+                sb.append("import " + im + ";");
                 sb.append(LINE);
                 break;
             }
@@ -191,10 +196,10 @@ public class TableToBean {
         TableToBean d = new TableToBean();
         while (rs.next()) {
             String tableName = rs.getString(3).toString();
-            if(tableName.equals("organ")) {
+            //if(tableName.equals("organ")) {
                 System.out.println("正在生成Bean的表名： ================ "+tableName);
                 d.tableToBean(con, tableName);
-            }
+            //}
         }
     }
 

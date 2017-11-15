@@ -1,6 +1,6 @@
 package mybatis.tools.postgres;
 
-import util.PropertiesUtil;
+import mybatis.tools.util.PropertiesUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Postgresql
- * Created by jzq1999 on 2017/10/21.
+ * Created by jzq1999 on 2017/11/14.
  */
 public class TableToXml {
 
@@ -23,6 +23,7 @@ public class TableToXml {
     private static Map<String, String> jdbcTypeMap;
 
     String filePath = PropertiesUtil.getValue(PropertiesUtil.FILE_PATH);
+    private static String companyName = PropertiesUtil.getValue("companyName");
 
     static {
         jdbcTypeMap = new HashMap<String, String>();
@@ -31,7 +32,6 @@ public class TableToXml {
         jdbcTypeMap.put("serial", "INTEGER");
         jdbcTypeMap.put("int4", "INTEGER");
         jdbcTypeMap.put("text", "LONGVARCHAR");
-
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
@@ -46,10 +46,10 @@ public class TableToXml {
         while (rs.next()) {
             String tableName = rs.getString(3);
             System.out.println("tableName ---------->> " + tableName);
-            if(tableName.equals("organ")) {
+            //if(tableName.equals("hq_legal_per")) {
                 System.out.println("正在生成XML Mapping的表名： ================ "+tableName);
                 d.tableToXml(con, tableName);
-            }
+            //}
         }
     }
 
@@ -62,12 +62,18 @@ public class TableToXml {
         xml.append("<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\" >");
         xml.append(LINE);
         // mapping.xml中要引用的Mapper接口,com.zainagou.supplier.mapper为xml映射的entity类的包名
-        String mapperName = "com.dmall.settle.mapper." +entityName+"Mapper";
+        //String mapperName = "com." + companyName + ".mapper." +entityName+"Mapper";
+        String mapperName = "com." + companyName + ".dao." +entityName+"Dao";
+
         xml.append("<mapper namespace=\""+mapperName+"\">");
         xml.append(LINE);
         xml.append(TAB);
-        String fullEntityName = "com.dmall.settle.domain."+entityName;
+        String fullEntityName = "com." + companyName + ".domain."+entityName;
         xml.append("<resultMap id=\"baseResultMap\" type=\""+fullEntityName+"\" >");
+
+        // <id> 应放第一位
+        StringBuilder idXml = new StringBuilder();
+        StringBuilder columnXml = new StringBuilder();
 
         List<String> columeList = new ArrayList<String>();
 
@@ -78,10 +84,7 @@ public class TableToXml {
 
             int columnCount = metaData.getColumnCount();
 
-            for(int i=1;i<=columnCount;i++){
-                xml.append(LINE);
-                xml.append(TAB);
-                xml.append(TAB);
+            for(int i=1;i<=columnCount;i++) {
                 String columnName = metaData.getColumnName(i);
                 columeList.add(columnName);
 
@@ -95,23 +98,34 @@ public class TableToXml {
                     columnTypeName = jdbcTypeMap.get(columnTypeName);
                 }
                 if(columnName.equals("id")){
-                    xml.append("<id column=\"id\" property=\"id\" jdbcType=\"");
-                    xml.append(columnTypeName);
-                    xml.append("\" />");
-                }else{
-                    xml.append("<result column=\"");
-                    xml.append(columnName);
-                    xml.append("\" property=\"");
+                    idXml.append(LINE);
+                    idXml.append(TAB);
+                    idXml.append(TAB);
+                    idXml.append("<id column=\"id\" property=\"id\" jdbcType=\"");
+                    idXml.append(columnTypeName);
+                    idXml.append("\" />");
+                } else {
+                    columnXml.append(LINE);
+                    columnXml.append(TAB);
+                    columnXml.append(TAB);
+                    columnXml.append("<result column=\"");
+                    columnXml.append(columnName);
+                    columnXml.append("\" property=\"");
                     String propertyName = dealName(columnName);
-                    xml.append(propertyName);
-                    xml.append("\" jdbcType=\"");
-                    xml.append(columnTypeName);
-                    xml.append("\" />");
+                    columnXml.append(propertyName);
+                    columnXml.append("\" jdbcType=\"");
+                    columnXml.append(columnTypeName);
+                    columnXml.append("\" />");
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e){
             e.printStackTrace();
         }
+
+        // 先添加ID, 再添加其他column
+        xml.append(idXml.toString());
+        xml.append(columnXml.toString());
+
         xml.append(LINE);
         xml.append(TAB);
         xml.append("</resultMap>");
@@ -130,6 +144,7 @@ public class TableToXml {
         xml.append(LINE);
         xml.append(TAB);
         xml.append("</sql>");
+        xml.append(LINE);
         xml.append(LINE);
         xml.append("</mapper>");
 //        String rootPath = this.getClass().getClassLoader().getResource("").getPath();
