@@ -20,7 +20,7 @@ public class TableToXml {
 
     private static Map<String, String> jdbcTypeMap;
 
-    String rootPath = PropertiesUtil.getValue("genFilePath");
+    String rootPath = PropertiesUtil.getValue(PropertiesUtil.FILE_PATH);
 
     static {
         jdbcTypeMap = new HashMap<String, String>();
@@ -29,6 +29,8 @@ public class TableToXml {
         jdbcTypeMap.put("TINYINT", "INTEGER");
         jdbcTypeMap.put("SMALLINT", "INTEGER");
         jdbcTypeMap.put("INT", "INTEGER");
+
+        //Postgresql
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
@@ -37,7 +39,9 @@ public class TableToXml {
         Connection con = DriverManager.getConnection(jdbcUrl, PropertiesUtil.getValue("db.username"),
                 PropertiesUtil.getValue("db.password"));
         DatabaseMetaData metadata = con.getMetaData();
+
         ResultSet rs = metadata.getTables(PropertiesUtil.getValue("db.name"), null, null, null);
+
         TableToXml d = new TableToXml();
         while (rs.next()) {
             String tableName = rs.getString(3);
@@ -55,6 +59,7 @@ public class TableToXml {
         xml.append("<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\" >");
         xml.append(LINE);
         // mapping.xml中要引用的Mapper接口,com.zainagou.supplier.mapper为xml映射的entity类的包名
+
         String mapperName = PropertiesUtil.getValue("package.name") + ".mapper." +entityName+"Mapper";
         xml.append("<mapper namespace=\""+mapperName+"\">");
         xml.append(LINE);

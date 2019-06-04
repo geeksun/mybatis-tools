@@ -19,7 +19,7 @@ public class TableToBean {
     private static final String LINE = "\r\n";
     private static final String TAB = "\t";
 
-    String genFilePath = PropertiesUtil.getValue("genFilePath");
+    String genFilePath = PropertiesUtil.getValue(PropertiesUtil.FILE_PATH);
 
     private static Map<String, String> javaTypeMap;
 

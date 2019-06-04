@@ -13,7 +13,7 @@ public class PropertiesUtil {
 
     private static Properties prop = new Properties();
 
-    public static String FILE_PATH = "filePath";
+    public static String FILE_PATH = "genFilePath";
 
     static {
         try {
