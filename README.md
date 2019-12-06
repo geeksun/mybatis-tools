@@ -10,3 +10,7 @@
 使用方法：
 1. 修改database.properties，写上数据库连接URL信息和要生成文件的路径、Mapper类的包名等。
 2. 根据数据库的种类，选择mysql或postgresql包下的TableToBean.java和TableToXml.java，就生成相应的Domain类和XML文件到相应目录。
+
+
+mybatis-tooles 项目的 Gitee 仓库地址：
+https://gitee.com/geeksun/mybatis-tools
