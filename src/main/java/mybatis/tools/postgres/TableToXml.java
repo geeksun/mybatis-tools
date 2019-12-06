@@ -23,7 +23,6 @@ public class TableToXml {
     private static Map<String, String> jdbcTypeMap;
 
     String filePath = PropertiesUtil.getValue(PropertiesUtil.FILE_PATH);
-    private static String companyName = PropertiesUtil.getValue("companyName");
 
     static {
         jdbcTypeMap = new HashMap<String, String>();
@@ -63,12 +62,12 @@ public class TableToXml {
         xml.append(LINE);
         // mapping.xml中要引用的Mapper接口,com.zainagou.supplier.mapper为xml映射的entity类的包名
         //String mapperName = "com." + companyName + ".mapper." +entityName+"Mapper";
-        String mapperName = "com." + companyName + ".dao." +entityName+"Dao";
+        String mapperName = "com." + PropertiesUtil.getValue("basePackage.name") + ".dao." +entityName+"Dao";
 
         xml.append("<mapper namespace=\""+mapperName+"\">");
         xml.append(LINE);
         xml.append(TAB);
-        String fullEntityName = "com." + companyName + ".domain."+entityName;
+        String fullEntityName = "com." + PropertiesUtil.getValue("basePackage.name") + ".domain."+entityName;
         xml.append("<resultMap id=\"baseResultMap\" type=\""+fullEntityName+"\" >");
 
         // <id> 应放第一位

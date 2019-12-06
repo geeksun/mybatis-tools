@@ -1,6 +1,7 @@
 package mybatis.tools.mysql;
 
 import mybatis.tools.util.PropertiesUtil;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -60,11 +61,11 @@ public class TableToXml {
         xml.append(LINE);
         // mapping.xml中要引用的Mapper接口,com.zainagou.supplier.mapper为xml映射的entity类的包名
 
-        String mapperName = PropertiesUtil.getValue("package.name") + ".mapper." +entityName+"Mapper";
+        String mapperName = PropertiesUtil.getValue("basePackage.name") + ".mapper." +entityName+"Mapper";
         xml.append("<mapper namespace=\""+mapperName+"\">");
         xml.append(LINE);
         xml.append(TAB);
-        String fullEntityName = PropertiesUtil.getValue("package.name") + ".domain."+entityName;
+        String fullEntityName = PropertiesUtil.getValue("basePackage.name") + ".domain."+entityName;
         xml.append("<resultMap id=\"baseResultMap\" type=\""+fullEntityName+"\" >");
 
         List<String> columeList = new ArrayList<String>();
