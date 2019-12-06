@@ -12,5 +12,5 @@
 2. 根据数据库的种类，选择mysql或postgresql包下的TableToBean.java和TableToXml.java，就生成相应的Domain类和XML文件到相应目录。
 
 
-mybatis-tooles 项目的 Gitee 仓库地址：
+Gitee 代码库的 mybatis-tooles 项目链接：
 https://gitee.com/geeksun/mybatis-tools
